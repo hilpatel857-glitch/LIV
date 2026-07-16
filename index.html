@@ -1,1232 +1,687 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <title>amita.exe 💗</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b0014" />
-    <meta name="description" content="Amita's corner of the internet — with a one-tap SOS button." />
+<meta charset="UTF-8" />
+<title>amita.exe 💗</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0014" />
+<meta name="description" content="Amita's corner of the internet — with a one-tap SOS button." />
 
-    <link rel="manifest" href="manifest.json" />
-    <link rel="icon" href="icons/icon-192.png" />
-    <link rel="apple-touch-icon" href="icons/icon-192.png" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Amita SOS" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Amita SOS" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-         :root {
-            --bg: #0b0014;
-            --pink: #ff2d95;
-            --purple: #7b2ff7;
-            --cyan: #00e5ff;
-            --ink: #fdf6ff;
-            --muted: #b79ac7;
-            --card: rgba(255, 255, 255, 0.06);
-            --sos: #ff3b5c;
-        }
-        
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        html,
-        body {
-            margin: 0;
-            min-height: 100%;
-            background: var(--bg);
-            color: var(--ink);
-            font-family: 'Space Grotesk', system-ui, sans-serif;
-            overflow-x: hidden;
-        }
-        
-        h1,
-        h2,
-        .display {
-            font-family: 'Fredoka', system-ui, sans-serif;
-        }
-        /* ---------- animated gradient blobs ---------- */
-        
-        #blobs {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            overflow: hidden;
-            pointer-events: none;
-        }
-        
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(70px);
-            opacity: 0.55;
-            animation: float 14s ease-in-out infinite;
-        }
-        
-        .blob.b1 {
-            width: 340px;
-            height: 340px;
-            background: var(--pink);
-            top: -80px;
-            left: -60px;
-        }
-        
-        .blob.b2 {
-            width: 300px;
-            height: 300px;
-            background: var(--purple);
-            bottom: -60px;
-            right: -60px;
-            animation-delay: -4s;
-        }
-        
-        .blob.b3 {
-            width: 260px;
-            height: 260px;
-            background: var(--cyan);
-            top: 40%;
-            left: 60%;
-            animation-delay: -8s;
-            opacity: 0.35;
-        }
-        
-        @keyframes float {
-            0%,
-            100% {
-                transform: translate(0, 0) scale(1);
-            }
-            50% {
-                transform: translate(30px, -25px) scale(1.12);
-            }
-        }
-        /* ---------- splash / tap-to-enter ---------- */
-        
-        #splash {
-            position: fixed;
-            inset: 0;
-            z-index: 50;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(ellipse at 50% 30%, #2a0a3d 0%, #0b0014 70%);
-            text-align: center;
-            padding: 24px;
-            transition: opacity .6s ease, visibility .6s ease;
-        }
-        
-        #splash.hide {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        
-        .splash-heart {
-            font-size: 64px;
-            animation: beat 1.1s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px var(--pink));
-        }
-        
-        @keyframes beat {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            25% {
-                transform: scale(1.15);
-            }
-            40% {
-                transform: scale(0.96);
-            }
-            55% {
-                transform: scale(1.08);
-            }
-        }
-        
-        #splash .display {
-            font-size: clamp(26px, 7vw, 36px);
-            margin: 14px 0 4px;
-            background: linear-gradient(90deg, var(--pink), var(--purple), var(--cyan));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        
-        #splash p {
-            color: var(--muted);
-            font-size: 13.5px;
-            margin: 0 0 26px;
-        }
-        
-        #enterBtn {
-            border: none;
-            cursor: pointer;
-            padding: 16px 30px;
-            border-radius: 999px;
-            font-family: 'Fredoka', sans-serif;
-            font-weight: 600;
-            font-size: 16px;
-            background: linear-gradient(90deg, var(--pink), var(--purple));
-            color: #fff;
-            box-shadow: 0 10px 30px rgba(255, 45, 149, 0.35);
-            animation: pulse-btn 1.8s ease-in-out infinite;
-        }
-        
-        @keyframes pulse-btn {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.045);
-            }
-        }
-        /* ---------- top bar ---------- */
-        
-        header {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: max(14px, env(safe-area-inset-top)) 18px 6px;
-        }
-        
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Fredoka', sans-serif;
-            font-weight: 600;
-            font-size: 15px;
-        }
-        
-        .brand .dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--pink), var(--cyan));
-            box-shadow: 0 0 10px var(--pink);
-        }
-        
-        #musicBtn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            background: var(--card);
-            backdrop-filter: blur(10px);
-            color: var(--ink);
-            border-radius: 999px;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 12px;
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        
-        .eq {
-            display: flex;
-            align-items: flex-end;
-            gap: 2px;
-            height: 12px;
-        }
-        
-        .eq span {
-            width: 2.5px;
-            background: var(--cyan);
-            border-radius: 2px;
-            animation: eq 0.9s ease-in-out infinite;
-        }
-        
-        .eq span:nth-child(1) {
-            animation-delay: -0.6s;
-        }
-        
-        .eq span:nth-child(2) {
-            animation-delay: -0.3s;
-        }
-        
-        .eq span:nth-child(3) {
-            animation-delay: 0s;
-        }
-        
-        @keyframes eq {
-            0%,
-            100% {
-                height: 3px;
-            }
-            50% {
-                height: 12px;
-            }
-        }
-        
-        #musicBtn.paused .eq span {
-            animation-play-state: paused;
-            height: 3px;
-        }
-        /* ---------- hero ---------- */
-        
-        main {
-            position: relative;
-            z-index: 2;
-            padding: 6px 18px 40px;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-        
-        .eyebrow {
-            text-align: center;
-            font-size: 11px;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-top: 6px;
-        }
-        
-        h1.name {
-            text-align: center;
-            font-size: clamp(42px, 14vw, 64px);
-            margin: 6px 0 2px;
-            font-weight: 700;
-            background: linear-gradient(90deg, var(--pink), var(--purple), var(--cyan));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            background-size: 200% auto;
-            animation: sheen 5s linear infinite;
-        }
-        
-        @keyframes sheen {
-            to {
-                background-position: 200% center;
-            }
-        }
-        
-        .tagline {
-            text-align: center;
-            color: var(--muted);
-            font-size: 13.5px;
-            margin: 0 0 6px;
-        }
-        
-        .badges {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 10px 0 18px;
-        }
-        
-        .badge {
-            font-size: 11.5px;
-            padding: 6px 12px;
-            border-radius: 999px;
-            background: var(--card);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            color: var(--ink);
-            font-family: 'Fredoka', sans-serif;
-        }
-        /* ---------- interactive heart ---------- */
-        
-        #heart-stage {
-            position: relative;
-            width: min(92vw, 440px);
-            height: min(92vw, 440px);
-            margin: 4px auto 6px;
-            cursor: pointer;
-            overflow: hidden;
-            clip-path: url(#heartClip);
-            -webkit-clip-path: url(#heartClip);
-        }
-        
-        #ui {
-            position: absolute;
-            inset: 0;
-            transform: scale(var(--fit-scale, 1));
-            transform-origin: center;
-        }
-        
-        .love {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin: -225px 0 0 -225px;
-            --i: 1;
-        }
-        
-        .love_word {
-            color: var(--pink);
-            font-size: 1.05rem;
-            transform: translateY(-100%) rotateZ(-30deg);
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 45, 149, 0.55);
-            letter-spacing: 1.5px;
-            white-space: nowrap;
-            font-family: 'Fredoka', sans-serif;
-            font-weight: 500;
-        }
-        
-        .love:nth-child(3n) .love_word {
-            color: var(--purple);
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(123, 47, 247, 0.55);
-        }
-        
-        .love:nth-child(5n) .love_word {
-            color: var(--cyan);
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(0, 229, 255, 0.55);
-        }
-        
-        .love_horizontal {
-            animation: horizontal 10000ms infinite alternate ease-in-out;
-            animation-delay: calc(var(--i) * -300ms);
-        }
-        
-        .love_vertical {
-            animation: vertical 20000ms infinite linear;
-            animation-delay: calc(var(--i) * -300ms);
-        }
-        
-        @keyframes horizontal {
-            from {
-                transform: translateX(0px);
-            }
-            to {
-                transform: translateX(450px);
-            }
-        }
-        
-        @keyframes vertical {
-            0% {
-                transform: translateY(180px);
-            }
-            10% {
-                transform: translateY(45px);
-            }
-            15% {
-                transform: translateY(4.5px);
-            }
-            18% {
-                transform: translateY(0px);
-            }
-            20% {
-                transform: translateY(4.5px);
-            }
-            22% {
-                transform: translateY(34.61538px);
-            }
-            24% {
-                transform: translateY(64.28571px);
-            }
-            25% {
-                transform: translateY(112.5px);
-            }
-            26% {
-                transform: translateY(64.28571px);
-            }
-            28% {
-                transform: translateY(34.61538px);
-            }
-            30% {
-                transform: translateY(4.5px);
-            }
-            32% {
-                transform: translateY(0px);
-            }
-            35% {
-                transform: translateY(4.5px);
-            }
-            40% {
-                transform: translateY(45px);
-            }
-            50% {
-                transform: translateY(180px);
-            }
-            71% {
-                transform: translateY(428.57143px);
-            }
-            72.5% {
-                transform: translateY(441.17647px);
-            }
-            75% {
-                transform: translateY(450px);
-            }
-            77.5% {
-                transform: translateY(441.17647px);
-            }
-            79% {
-                transform: translateY(428.57143px);
-            }
-            100% {
-                transform: translateY(180px);
-            }
-        }
-        
-        .center-name {
-            position: absolute;
-            z-index: 3;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            pointer-events: none;
-        }
-        
-        .center-name .s {
-            font-size: 11px;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: rgba(253, 246, 255, 0.6);
-        }
-        
-        .center-name .n {
-            display: block;
-            margin-top: 4px;
-            font-family: 'Fredoka', sans-serif;
-            font-weight: 600;
-            font-size: 15px;
-            color: #fff;
-            text-shadow: 0 0 16px var(--pink);
-        }
-        
-        .tap-hint {
-            text-align: center;
-            font-size: 11.5px;
-            color: var(--muted);
-            margin: 0 0 20px;
-        }
-        /* ---------- floating tap hearts ---------- */
-        
-        .flying-heart {
-            position: fixed;
-            pointer-events: none;
-            z-index: 40;
-            font-size: 22px;
-            user-select: none;
-        }
-        /* ---------- action cards ---------- */
-        
-        .card {
-            background: var(--card);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(14px);
-            border-radius: 22px;
-            padding: 18px 18px 16px;
-            margin-bottom: 14px;
-        }
-        
-        .card h2 {
-            margin: 0 0 4px;
-            font-size: 17px;
-        }
-        
-        .card p {
-            margin: 0 0 14px;
-            font-size: 13px;
-            color: var(--muted);
-            line-height: 1.55;
-        }
-        
-        .card-sos {
-            border: 1px solid rgba(255, 59, 92, 0.4);
-            background: linear-gradient(180deg, rgba(255, 59, 92, 0.14), var(--card));
-            box-shadow: 0 10px 34px rgba(255, 59, 92, 0.15);
-            margin-top: 4px;
-        }
-        
-        #sosFab {
-            position: fixed;
-            z-index: 45;
-            right: 16px;
-            bottom: calc(20px + env(safe-area-inset-bottom));
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            background: linear-gradient(135deg, var(--sos), #ff6b6b);
-            color: #fff;
-            font-size: 22px;
-            box-shadow: 0 10px 28px rgba(255, 59, 92, 0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fabpulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes fabpulse {
-            0%,
-            100% {
-                box-shadow: 0 10px 28px rgba(255, 59, 92, 0.45);
-            }
-            50% {
-                box-shadow: 0 10px 28px rgba(255, 59, 92, 0.45), 0 0 0 10px rgba(255, 59, 92, 0.12);
-            }
-        }
-        
-        button.action {
-            appearance: none;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            border-radius: 14px;
-            padding: 15px 16px;
-            font-size: 15px;
-            font-weight: 600;
-            font-family: 'Fredoka', sans-serif;
-            letter-spacing: 0.01em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 9px;
-            transition: transform .15s ease;
-        }
-        
-        button.action:active {
-            transform: scale(0.97);
-        }
-        
-        #installBtn {
-            background: linear-gradient(90deg, var(--purple), var(--cyan));
-            color: #0b0014;
-        }
-        
-        #sosBtn {
-            background: linear-gradient(90deg, var(--sos), #ff6b6b);
-            color: #fff;
-            box-shadow: 0 8px 26px rgba(255, 59, 92, 0.3);
-        }
-        
-        #sosBtn .pulse-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #fff;
-            animation: dotpulse 1.6s infinite;
-        }
-        
-        @keyframes dotpulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-            }
-        }
-        
-        .status {
-            text-align: center;
-            font-size: 12px;
-            color: var(--muted);
-            min-height: 16px;
-            margin-top: 6px;
-        }
-        
-        footer {
-            text-align: center;
-            color: var(--muted);
-            font-size: 11px;
-            padding: 10px 0 30px;
-        }
-        /* ---------- modal ---------- */
-        
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(4, 0, 10, 0.75);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 60;
-            padding: 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .2s ease;
-        }
-        
-        .modal-backdrop.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        
-        .modal {
-            background: #170a24;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 22px;
-            padding: 26px 22px;
-            width: min(380px, 100%);
-            text-align: center;
-            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
-        }
-        
-        .modal .em {
-            font-size: 34px;
-            margin-bottom: 6px;
-        }
-        
-        .modal h3 {
-            margin: 0 0 8px;
-            font-size: 19px;
-            font-family: 'Fredoka', sans-serif;
-        }
-        
-        .modal p {
-            margin: 0 0 20px;
-            font-size: 13.5px;
-            color: var(--muted);
-            line-height: 1.55;
-        }
-        
-        .modal-row {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .modal-row button {
-            border: none;
-            border-radius: 14px;
-            padding: 13px;
-            font-size: 14px;
-            cursor: pointer;
-            font-weight: 600;
-            font-family: 'Fredoka', sans-serif;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(90deg, var(--purple), var(--cyan));
-            color: #0b0014;
-        }
-        
-        .btn-sos {
-            background: linear-gradient(90deg, var(--sos), #ff6b6b);
-            color: #fff;
-        }
-        
-        .btn-ghost {
-            background: transparent;
-            color: var(--muted);
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        }
-        /* ---------- camera capture ---------- */
-        
-        #camPreview {
-            position: fixed;
-            z-index: 70;
-            bottom: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 160px;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 2px solid var(--pink);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .2s ease;
-        }
-        
-        #camPreview.show {
-            opacity: 1;
-        }
-        
-        #camPreview video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1);
-        }
-        
-        #camPreview .flash {
-            position: absolute;
-            inset: 0;
-            background: #fff;
-            opacity: 0;
-        }
-        
-        #camPreview .flash.go {
-            animation: flash .25s ease;
-        }
-        
-        @keyframes flash {
-            0% {
-                opacity: 0;
-            }
-            30% {
-                opacity: 0.9;
-            }
-            100% {
-                opacity: 0;
-            }
-        }
-        
-        .photo-preview {
-            width: 100%;
-            border-radius: 16px;
-            margin-bottom: 16px;
-            display: block;
-        }
-        
-        .modal-note {
-            font-size: 11.5px;
-            color: var(--muted);
-            margin: -8px 0 16px;
-        }
-    </style>
+<style>
+  :root{
+    --bg:#0b0014;
+    --pink:#ff2d95;
+    --purple:#7b2ff7;
+    --cyan:#00e5ff;
+    --ink:#fdf6ff;
+    --muted:#b79ac7;
+    --card:rgba(255,255,255,0.06);
+    --sos:#ff3b5c;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{
+    margin:0; min-height:100%; background:var(--bg); color:var(--ink);
+    font-family:'Space Grotesk', system-ui, sans-serif;
+    overflow-x:hidden;
+  }
+  h1,h2,.display{ font-family:'Fredoka', system-ui, sans-serif; }
+
+  /* ---------- animated gradient blobs ---------- */
+  #blobs{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+  .blob{
+    position:absolute; border-radius:50%; filter:blur(70px); opacity:0.55;
+    animation: float 14s ease-in-out infinite;
+  }
+  .blob.b1{ width:340px; height:340px; background:var(--pink); top:-80px; left:-60px; }
+  .blob.b2{ width:300px; height:300px; background:var(--purple); bottom:-60px; right:-60px; animation-delay:-4s; }
+  .blob.b3{ width:260px; height:260px; background:var(--cyan); top:40%; left:60%; animation-delay:-8s; opacity:0.35;}
+  @keyframes float{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(30px,-25px) scale(1.12); }
+  }
+
+  /* ---------- splash / tap-to-enter ---------- */
+  #splash{
+    position:fixed; inset:0; z-index:50;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background: radial-gradient(ellipse at 50% 30%, #2a0a3d 0%, #0b0014 70%);
+    text-align:center; padding:24px; transition:opacity .6s ease, visibility .6s ease;
+  }
+  #splash.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+  .splash-heart{ font-size:64px; animation:beat 1.1s ease-in-out infinite; filter:drop-shadow(0 0 20px var(--pink)); }
+  @keyframes beat{ 0%,100%{ transform:scale(1);} 25%{transform:scale(1.15);} 40%{transform:scale(0.96);} 55%{transform:scale(1.08);} }
+  #splash .display{ font-size:clamp(26px,7vw,36px); margin:14px 0 4px; background:linear-gradient(90deg,var(--pink),var(--purple),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #splash p{ color:var(--muted); font-size:13.5px; margin:0 0 26px; }
+  #enterBtn{
+    border:none; cursor:pointer; padding:16px 30px; border-radius:999px;
+    font-family:'Fredoka',sans-serif; font-weight:600; font-size:16px;
+    background:linear-gradient(90deg,var(--pink),var(--purple));
+    color:#fff; box-shadow:0 10px 30px rgba(255,45,149,0.35);
+    animation: pulse-btn 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse-btn{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.045);} }
+
+  /* ---------- top bar ---------- */
+  header{
+    position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between;
+    padding: max(14px, env(safe-area-inset-top)) 18px 6px;
+  }
+  .brand{ display:flex; align-items:center; gap:8px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:15px; }
+  .brand .dot{ width:9px; height:9px; border-radius:50%; background:linear-gradient(135deg,var(--pink),var(--cyan)); box-shadow:0 0 10px var(--pink); }
+
+  #musicBtn{
+    display:flex; align-items:center; gap:6px; border:1px solid rgba(255,255,255,0.15);
+    background:var(--card); backdrop-filter:blur(10px); color:var(--ink);
+    border-radius:999px; padding:8px 12px; cursor:pointer; font-size:12px; font-family:'Space Grotesk',sans-serif;
+  }
+  .eq{ display:flex; align-items:flex-end; gap:2px; height:12px; }
+  .eq span{ width:2.5px; background:var(--cyan); border-radius:2px; animation:eq 0.9s ease-in-out infinite; }
+  .eq span:nth-child(1){ animation-delay:-0.6s; }
+  .eq span:nth-child(2){ animation-delay:-0.3s; }
+  .eq span:nth-child(3){ animation-delay:0s; }
+  @keyframes eq{ 0%,100%{ height:3px;} 50%{ height:12px;} }
+  #musicBtn.paused .eq span{ animation-play-state:paused; height:3px; }
+
+  /* ---------- hero ---------- */
+  main{ position:relative; z-index:2; padding: 6px 18px 40px; max-width:480px; margin:0 auto; }
+  .eyebrow{
+    text-align:center; font-size:11px; letter-spacing:0.3em; text-transform:uppercase;
+    color:var(--muted); margin-top:6px;
+  }
+  h1.name{
+    text-align:center; font-size:clamp(42px,14vw,64px); margin:6px 0 2px; font-weight:700;
+    background:linear-gradient(90deg,var(--pink),var(--purple),var(--cyan));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    background-size:200% auto; animation:sheen 5s linear infinite;
+  }
+  @keyframes sheen{ to{ background-position:200% center; } }
+  .tagline{ text-align:center; color:var(--muted); font-size:13.5px; margin:0 0 6px; }
+  .badges{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:10px 0 18px; }
+  .badge{
+    font-size:11.5px; padding:6px 12px; border-radius:999px;
+    background:var(--card); border:1px solid rgba(255,255,255,0.14); color:var(--ink);
+    font-family:'Fredoka',sans-serif;
+  }
+
+  /* ---------- interactive heart ---------- */
+  #heart-stage{
+    position:relative; width:min(90vw, 420px); height:min(90vw, 420px);
+    margin: 4px auto 6px; cursor:pointer;
+    overflow:hidden;
+    clip-path:url(#heartClip);
+    -webkit-clip-path:url(#heartClip);
+  }
+  #ui{
+    position:absolute; inset:0;
+    transform: scale(var(--fit-scale, 1));
+    transform-origin: center;
+  }
+  .love { position:absolute; top:50%; left:50%; margin:-225px 0 0 -225px; --i:1; }
+  .love_word{
+    color: var(--pink);
+    font-size: 1.05rem;
+    transform: translateY(-100%) rotateZ(-30deg);
+    text-shadow: 0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(255,45,149,0.55);
+    letter-spacing: 1.5px; white-space: nowrap; font-family:'Fredoka', sans-serif; font-weight:500;
+  }
+  .love:nth-child(3n) .love_word{ color: var(--purple); text-shadow:0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(123,47,247,0.55); }
+  .love:nth-child(5n) .love_word{ color: var(--cyan); text-shadow:0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(0,229,255,0.55); }
+  .love_horizontal{ animation: horizontal 10000ms infinite alternate ease-in-out; animation-delay: calc(var(--i) * -300ms); }
+  .love_vertical{ animation: vertical 20000ms infinite linear; animation-delay: calc(var(--i) * -300ms); }
+  @keyframes horizontal{ from{ transform:translateX(0px);} to{ transform:translateX(450px);} }
+  @keyframes vertical{
+    0%{transform:translateY(180px);} 10%{transform:translateY(45px);}
+    15%{transform:translateY(4.5px);} 18%{transform:translateY(0px);}
+    20%{transform:translateY(4.5px);} 22%{transform:translateY(34.61538px);}
+    24%{transform:translateY(64.28571px);} 25%{transform:translateY(112.5px);}
+    26%{transform:translateY(64.28571px);} 28%{transform:translateY(34.61538px);}
+    30%{transform:translateY(4.5px);} 32%{transform:translateY(0px);}
+    35%{transform:translateY(4.5px);} 40%{transform:translateY(45px);}
+    50%{transform:translateY(180px);} 71%{transform:translateY(428.57143px);}
+    72.5%{transform:translateY(441.17647px);} 75%{transform:translateY(450px);}
+    77.5%{transform:translateY(441.17647px);} 79%{transform:translateY(428.57143px);}
+    100%{transform:translateY(180px);}
+  }
+  .center-name{ position:absolute; z-index:3; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; }
+  .center-name .s{ font-size:11px; letter-spacing:0.25em; text-transform:uppercase; color:rgba(253,246,255,0.6); }
+  .center-name .n{ display:block; margin-top:4px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:15px; color:#fff; text-shadow:0 0 16px var(--pink); }
+
+  .tap-hint{ text-align:center; font-size:11.5px; color:var(--muted); margin:0 0 20px; }
+
+  /* ---------- floating tap hearts ---------- */
+  .flying-heart{ position:fixed; pointer-events:none; z-index:40; font-size:22px; user-select:none; }
+
+  /* ---------- action cards ---------- */
+  .card{
+    background:var(--card); border:1px solid rgba(255,255,255,0.12);
+    backdrop-filter:blur(14px); border-radius:22px; padding:18px 18px 16px;
+    margin-bottom:14px;
+  }
+  .card h2{ margin:0 0 4px; font-size:17px; }
+  .card p{ margin:0 0 14px; font-size:13px; color:var(--muted); line-height:1.55; }
+
+  button.action{
+    appearance:none; border:none; cursor:pointer; width:100%;
+    border-radius:14px; padding:15px 16px; font-size:15px; font-weight:600;
+    font-family:'Fredoka',sans-serif; letter-spacing:0.01em;
+    display:flex; align-items:center; justify-content:center; gap:9px;
+    transition: transform .15s ease;
+  }
+  button.action:active{ transform:scale(0.97); }
+
+  #installBtn{ background:linear-gradient(90deg,var(--purple),var(--cyan)); color:#0b0014; }
+  #sosBtn{ background:linear-gradient(90deg,var(--sos),#ff6b6b); color:#fff; box-shadow:0 8px 26px rgba(255,59,92,0.3); }
+  #sosBtn .pulse-dot, #sosFab .pulse-dot{ width:8px; height:8px; border-radius:50%; background:#fff; animation:dotpulse 1.6s infinite; }
+  @keyframes dotpulse{ 0%{ box-shadow:0 0 0 0 rgba(255,255,255,0.6);} 70%{ box-shadow:0 0 0 10px rgba(255,255,255,0);} 100%{ box-shadow:0 0 0 0 rgba(255,255,255,0);} }
+
+  .status{ text-align:center; font-size:12px; color:var(--muted); min-height:16px; margin-top:6px; }
+  footer{ text-align:center; color:var(--muted); font-size:11px; padding:10px 0 30px; }
+
+  /* ---------- always-on-screen quick SOS ---------- */
+  #sosFab{
+    position:fixed; z-index:45; right:18px; bottom:calc(18px + env(safe-area-inset-bottom));
+    width:56px; height:56px; border-radius:50%; border:none; cursor:pointer;
+    background:linear-gradient(135deg,var(--sos),#ff6b6b); color:#fff; font-size:22px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 10px 26px rgba(255,59,92,0.45);
+    transition: transform .15s ease;
+  }
+  #sosFab:active{ transform:scale(0.94); }
+
+  /* ---------- modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(4,0,10,0.75); backdrop-filter:blur(5px);
+    display:flex; align-items:center; justify-content:center; z-index:60;
+    padding:20px; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .modal-backdrop.show{ opacity:1; pointer-events:auto; }
+  .modal{
+    background:#170a24; border:1px solid rgba(255,255,255,0.14); border-radius:22px;
+    padding:26px 22px; width:min(380px,100%); text-align:center; box-shadow:0 24px 70px rgba(0,0,0,0.55);
+  }
+  .modal .em{ font-size:34px; margin-bottom:6px; }
+  .modal h3{ margin:0 0 8px; font-size:19px; font-family:'Fredoka',sans-serif; }
+  .modal p{ margin:0 0 20px; font-size:13.5px; color:var(--muted); line-height:1.55; }
+  .modal-row{ display:flex; flex-direction:column; gap:10px; }
+  .modal-row button{
+    border:none; border-radius:14px; padding:13px; font-size:14px; cursor:pointer;
+    font-weight:600; font-family:'Fredoka',sans-serif;
+  }
+  .btn-primary{ background:linear-gradient(90deg,var(--purple),var(--cyan)); color:#0b0014; }
+  .btn-sos{ background:linear-gradient(90deg,var(--sos),#ff6b6b); color:#fff; }
+  .btn-ghost{ background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.15) !important; }
+
+  /* ---------- camera capture ---------- */
+  #camPreview{
+    position:fixed; z-index:70; bottom:18px; left:50%; transform:translateX(-50%);
+    width:120px; height:160px; border-radius:16px; overflow:hidden;
+    border:2px solid var(--pink); box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  #camPreview.show{ opacity:1; }
+  #camPreview video{ width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+  #camPreview .flash{
+    position:absolute; inset:0; background:#fff; opacity:0;
+  }
+  #camPreview .flash.go{ animation:flash .25s ease; }
+  @keyframes flash{ 0%{opacity:0;} 30%{opacity:0.9;} 100%{opacity:0;} }
+
+  .photo-preview{ width:100%; border-radius:16px; margin-bottom:16px; display:block; }
+  .modal-note{ font-size:11.5px; color:var(--muted); margin:-8px 0 16px; }
+</style>
 </head>
-
 <body>
 
-    <div id="blobs">
-        <div class="blob b1"></div>
-        <div class="blob b2"></div>
-        <div class="blob b3"></div>
-    </div>
+<div id="blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
 
-    <!-- splash / tap-to-enter (also unlocks audio) -->
-    <div id="splash">
-        <div class="splash-heart">💗</div>
-        <div class="display">for amita</div>
-        <p>tap in, this one's just for you</p>
-        <button id="enterBtn">open it up ✨</button>
-    </div>
+<!-- splash / tap-to-enter (also unlocks audio) -->
+<div id="splash">
+  <div class="splash-heart">💗</div>
+  <div class="display">for amita</div>
+  <p>tap in, this one's just for you</p>
+  <button id="enterBtn">open it up ✨</button>
+</div>
 
-    <audio id="song" src="song.mp3" loop preload="auto"></audio>
+<audio id="song" src="song.mp3" loop preload="auto"></audio>
 
-    <header>
-        <div class="brand"><span class="dot"></span> amita.exe</div>
-        <button id="musicBtn" class="paused">
+<header>
+  <div class="brand"><span class="dot"></span> amita.exe</div>
+  <button id="musicBtn" class="paused">
     <span class="eq"><span></span><span></span><span></span></span>
     <span id="musicLabel">play</span>
   </button>
-    </header>
+</header>
 
-    <main>
-        <p class="eyebrow">certified main character</p>
-        <h1 class="name">AMITA</h1>
-        <p class="tagline">this whole page runs on one thing: how much you're loved 💫</p>
-        <div class="badges">
-            <span class="badge">🔒 certified mine</span>
-            <span class="badge">💅 no cap loyal</span>
-            <span class="badge">🫶 ride or die</span>
-        </div>
+<main>
+  <p class="eyebrow">certified main character</p>
+  <h1 class="name">AMITA</h1>
+  <p class="tagline">this whole page runs on one thing: how much you're loved 💫</p>
+  <div class="badges">
+    <span class="badge">🔒 certified mine</span>
+    <span class="badge">💅 no cap loyal</span>
+    <span class="badge">🫶 ride or die</span>
+  </div>
 
-        <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-            <defs>
-                <clipPath id="heartClip" clipPathUnits="objectBoundingBox">
-                    <path d="M0.5,0.30 C0.5,0.16 0.6,0.05 0.75,0.05 C0.9,0.05 1.0,0.16 1.0,0.35 C1.0,0.60 0.7,0.80 0.5,0.98 C0.3,0.80 0.0,0.60 0.0,0.35 C0.0,0.16 0.1,0.05 0.25,0.05 C0.4,0.05 0.5,0.16 0.5,0.30 Z" />
-                </clipPath>
-            </defs>
-        </svg>
-        <div id="heart-stage">
-            <div id="ui"></div>
-            <div class="center-name">
-                <span class="s">tap the heart</span>
-                <span class="n">it's kinda alive 👀</span>
-            </div>
-        </div>
-        <p class="tap-hint">psst — tap anywhere on the heart 💗</p>
+  <!-- heart-shaped clip so the animated text is contained by a real heart silhouette -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <clipPath id="heartClip" clipPathUnits="objectBoundingBox">
+        <path d="M0.5,0.30 C0.5,0.16 0.6,0.05 0.75,0.05 C0.9,0.05 1.0,0.16 1.0,0.35 C1.0,0.60 0.7,0.80 0.5,0.98 C0.3,0.80 0.0,0.60 0.0,0.35 C0.0,0.16 0.1,0.05 0.25,0.05 C0.4,0.05 0.5,0.16 0.5,0.30 Z" />
+      </clipPath>
+    </defs>
+  </svg>
+  <div id="heart-stage">
+    <div id="ui"></div>
+    <div class="center-name">
+      <span class="s">tap the heart</span>
+      <span class="n">it's kinda alive 👀</span>
+    </div>
+  </div>
+  <p class="tap-hint">psst — tap anywhere on the heart 💗</p>
 
-        <div class="card card-sos">
-            <h2>🆘 SOS button</h2>
-            <p>if you're ever unsafe or just need me — one tap opens WhatsApp to me, grabs your live location, and snaps a quick photo so I know exactly where you are and that you're okay.</p>
-            <button id="sosBtn" class="action">
-      <span class="pulse-dot"></span>
-      Send SOS
-    </button>
-            <div class="status" id="status"></div>
-        </div>
-
-        <div class="card">
-            <h2>📲 install the app</h2>
-            <p>put this on your home screen so the SOS button is always one tap away, no matter what.</p>
-            <button id="installBtn" class="action">
+  <div class="card">
+    <h2>📲 install the app</h2>
+    <p>put this on your home screen so the SOS button is always one tap away, no matter what.</p>
+    <button id="installBtn" class="action">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Install to Home Screen
     </button>
-        </div>
+  </div>
 
-        <footer>made with 💗 (and way too much css) — always yours</footer>
-    </main>
+  <div class="card">
+    <h2>🆘 SOS button</h2>
+    <p>if you're ever unsafe or just need me — one tap opens WhatsApp to me, grabs your live location, and snaps a quick photo so I know exactly where you are and that you're okay.</p>
+    <button id="sosBtn" class="action">
+      <span class="pulse-dot"></span>
+      Send SOS
+    </button>
+    <div class="status" id="status"></div>
+  </div>
 
-    <!-- always-on-screen quick SOS, works even while scrolled down -->
-    <button id="sosFab" aria-label="Send SOS">🆘</button>
+  <footer>made with 💗 (and way too much css) — always yours</footer>
+</main>
 
-    <!-- iOS install instructions -->
-    <div class="modal-backdrop" id="iosBackdrop">
-        <div class="modal">
-            <div class="em">✨</div>
-            <h3>Add to Home Screen</h3>
-            <p>Tap the Share icon <b>⬆️</b> in Safari's toolbar, then choose <b>“Add to Home Screen.”</b> Your app icon shows up right on your home screen.</p>
-            <div class="modal-row"><button class="btn-primary" id="iosOkBtn">Got it</button></div>
-        </div>
+<!-- always-on-screen quick SOS, works even while scrolled down -->
+<button id="sosFab" aria-label="Send SOS"><span class="pulse-dot" style="position:absolute; top:6px; right:8px;"></span>🆘</button>
+
+<!-- install-first nudge modal -->
+<div class="modal-backdrop" id="nudgeBackdrop">
+  <div class="modal">
+    <div class="em">📲</div>
+    <h3>Quick thing first?</h3>
+    <p>Adding this to your home screen means the SOS button is always right there — even faster next time. Totally your call though.</p>
+    <div class="modal-row">
+      <button class="btn-primary" id="nudgeInstall">Install app first</button>
+      <button class="btn-sos" id="nudgeSendAnyway">Just send SOS now</button>
+      <button class="btn-ghost" id="nudgeCancel">Never mind</button>
     </div>
+  </div>
+</div>
+
+<!-- iOS install instructions -->
+<div class="modal-backdrop" id="iosBackdrop">
+  <div class="modal">
+    <div class="em">✨</div>
+    <h3>Add to Home Screen</h3>
+    <p>Tap the Share icon <b>⬆️</b> in Safari's toolbar, then choose <b>“Add to Home Screen.”</b> Your app icon shows up right on your home screen.</p>
+    <div class="modal-row"><button class="btn-primary" id="iosOkBtn">Got it</button></div>
+  </div>
+</div>
 
 
+<!-- live front-camera preview during selfie capture -->
+<div id="camPreview">
+  <video id="camVideo" autoplay muted playsinline></video>
+  <div class="flash" id="camFlash"></div>
+</div>
+<canvas id="camCanvas" style="display:none;"></canvas>
 
-    <!-- live front-camera preview during selfie capture -->
-    <div id="camPreview">
-        <video id="camVideo" autoplay muted playsinline></video>
-        <div class="flash" id="camFlash"></div>
+<!-- photo + location ready to share -->
+<div class="modal-backdrop" id="photoBackdrop">
+  <div class="modal">
+    <div class="em">📍</div>
+    <h3>Ready to share</h3>
+    <img id="photoThumb" class="photo-preview" style="display:none;" alt="captured selfie" />
+    <p class="modal-note" id="photoStatusText">Your location is attached below. Tap share and pick WhatsApp — the chat with him should already be open or recent.</p>
+    <div class="modal-row">
+      <button class="btn-sos" id="shareBtn">📤 Share photo + location</button>
+      <button class="btn-primary" id="openWaAgainBtn">Open WhatsApp with location</button>
+      <button class="btn-ghost" id="downloadPhotoBtn">Download photo</button>
+      <button class="btn-ghost" id="photoCloseBtn">Close</button>
     </div>
-    <canvas id="camCanvas" style="display:none;"></canvas>
+  </div>
+</div>
 
-    <!-- photo + location ready to share -->
-    <div class="modal-backdrop" id="photoBackdrop">
-        <div class="modal">
-            <div class="em">📍</div>
-            <h3>Ready to share</h3>
-            <img id="photoThumb" class="photo-preview" style="display:none;" alt="captured selfie" />
-            <p class="modal-note" id="photoStatusText">Your location is attached below. Tap share and pick WhatsApp — the chat with him should already be open or recent.</p>
-            <div class="modal-row">
-                <button class="btn-sos" id="shareBtn">📤 Share photo + location</button>
-                <button class="btn-primary" id="openWaAgainBtn">Open WhatsApp with location</button>
-                <button class="btn-ghost" id="downloadPhotoBtn">Download photo</button>
-                <button class="btn-ghost" id="photoCloseBtn">Close</button>
-            </div>
-        </div>
-    </div>
+<script>
+  /* ---------------- splash / enter + audio unlock ---------------- */
+  const splash = document.getElementById('splash');
+  const enterBtn = document.getElementById('enterBtn');
+  const song = document.getElementById('song');
+  const musicBtn = document.getElementById('musicBtn');
+  const musicLabel = document.getElementById('musicLabel');
 
-    <script>
-        /* ---------------- splash / enter + audio unlock ---------------- */
-        const splash = document.getElementById('splash');
-        const enterBtn = document.getElementById('enterBtn');
-        const song = document.getElementById('song');
-        const musicBtn = document.getElementById('musicBtn');
-        const musicLabel = document.getElementById('musicLabel');
+  function setMusicUI(playing){
+    musicBtn.classList.toggle('paused', !playing);
+    musicLabel.textContent = playing ? 'playing' : 'play';
+  }
 
-        function setMusicUI(playing) {
-            musicBtn.classList.toggle('paused', !playing);
-            musicLabel.textContent = playing ? 'playing' : 'play';
-        }
+  enterBtn.addEventListener('click', () => {
+    splash.classList.add('hide');
+    song.volume = 0.55;
+    song.play().then(() => setMusicUI(true)).catch(() => setMusicUI(false));
+  });
 
-        enterBtn.addEventListener('click', () => {
-            splash.classList.add('hide');
-            song.volume = 0.55;
-            song.play().then(() => setMusicUI(true)).catch(() => setMusicUI(false));
-        });
+  musicBtn.addEventListener('click', () => {
+    if (song.paused){
+      song.play().then(() => setMusicUI(true)).catch(() => setMusicUI(false));
+    } else {
+      song.pause();
+      setMusicUI(false);
+    }
+  });
+  song.addEventListener('ended', () => setMusicUI(false));
 
-        musicBtn.addEventListener('click', () => {
-            if (song.paused) {
-                song.play().then(() => setMusicUI(true)).catch(() => setMusicUI(false));
-            } else {
-                song.pause();
-                setMusicUI(false);
-            }
-        });
-        song.addEventListener('ended', () => setMusicUI(false));
+  /* ---------------- heart of "I love you" text ---------------- */
+  const N = 90;
+  const ui = document.getElementById('ui');
+  const words = ['I love you', 'Amita', 'no cap', 'forever', 'my person'];
+  for (let i = 1; i <= N; i++) {
+    const love = document.createElement('div');
+    love.className = 'love';
+    love.style.setProperty('--i', i);
+    const h = document.createElement('div'); h.className = 'love_horizontal';
+    const v = document.createElement('div'); v.className = 'love_vertical';
+    const word = document.createElement('div'); word.className = 'love_word';
+    word.textContent = (i % 11 === 0) ? words[1 + (i % 4)] : words[0];
+    v.appendChild(word); h.appendChild(v); love.appendChild(h); ui.appendChild(love);
+  }
 
-        /* ---------------- heart of "I love you" text ---------------- */
-        const N = 90;
-        const ui = document.getElementById('ui');
-        const words = ['I love you', 'Amita', 'no cap', 'forever', 'my person'];
-        for (let i = 1; i <= N; i++) {
-            const love = document.createElement('div');
-            love.className = 'love';
-            love.style.setProperty('--i', i);
-            const h = document.createElement('div');
-            h.className = 'love_horizontal';
-            const v = document.createElement('div');
-            v.className = 'love_vertical';
-            const word = document.createElement('div');
-            word.className = 'love_word';
-            word.textContent = (i % 11 === 0) ? words[1 + (i % 4)] : words[0];
-            v.appendChild(word);
-            h.appendChild(v);
-            love.appendChild(h);
-            ui.appendChild(love);
-        }
+  // The animation's word paths were authored for a 450px stage — scale it
+  // down to whatever size #heart-stage actually renders at (it's smaller
+  // than 450px on most phones) so nothing gets clipped or spills out.
+  function fitHeartStage(){
+    const box = document.getElementById('heart-stage');
+    const scale = box.clientWidth / 450;
+    box.style.setProperty('--fit-scale', scale.toFixed(3));
+  }
+  window.addEventListener('resize', fitHeartStage);
+  window.addEventListener('load', fitHeartStage);
+  fitHeartStage();
 
-        // The animation's word paths were authored for a 450px stage — scale it
-        // down to whatever size #heart-stage actually renders at (it's smaller
-        // than 450px on most phones) so nothing gets clipped or spills out.
-        function fitHeartStage() {
-            const box = document.getElementById('heart-stage');
-            const scale = box.clientWidth / 450;
-            box.style.setProperty('--fit-scale', scale.toFixed(3));
-        }
-        window.addEventListener('resize', fitHeartStage);
-        window.addEventListener('load', fitHeartStage);
-        fitHeartStage();
+  /* tap the heart -> flying heart emojis */
+  const stage = document.getElementById('heart-stage');
+  const emojiPool = ['💖','💗','💫','✨','💘'];
+  stage.addEventListener('click', (e) => {
+    const rect = stage.getBoundingClientRect();
+    for (let k = 0; k < 6; k++){
+      const fh = document.createElement('div');
+      fh.className = 'flying-heart';
+      fh.textContent = emojiPool[Math.floor(Math.random()*emojiPool.length)];
+      const startX = e.clientX ?? (rect.left + rect.width/2);
+      const startY = e.clientY ?? (rect.top + rect.height/2);
+      fh.style.left = (startX + (Math.random()*40-20)) + 'px';
+      fh.style.top = startY + 'px';
+      document.body.appendChild(fh);
+      const dx = (Math.random()*120-60);
+      const dur = 900 + Math.random()*500;
+      fh.animate([
+        { transform:'translate(0,0) scale(0.8)', opacity:1 },
+        { transform:`translate(${dx}px,-140px) scale(1.2)`, opacity:0 }
+      ], { duration: dur, easing:'cubic-bezier(.2,.8,.3,1)' });
+      setTimeout(() => fh.remove(), dur + 50);
+    }
+  });
 
-        /* tap the heart -> flying heart emojis */
-        const stage = document.getElementById('heart-stage');
-        const emojiPool = ['💖', '💗', '💫', '✨', '💘'];
-        stage.addEventListener('click', (e) => {
-            const rect = stage.getBoundingClientRect();
-            for (let k = 0; k < 6; k++) {
-                const fh = document.createElement('div');
-                fh.className = 'flying-heart';
-                fh.textContent = emojiPool[Math.floor(Math.random() * emojiPool.length)];
-                const startX = e.clientX ?? (rect.left + rect.width / 2);
-                const startY = e.clientY ?? (rect.top + rect.height / 2);
-                fh.style.left = (startX + (Math.random() * 40 - 20)) + 'px';
-                fh.style.top = startY + 'px';
-                document.body.appendChild(fh);
-                const dx = (Math.random() * 120 - 60);
-                const dur = 900 + Math.random() * 500;
-                fh.animate([{
-                    transform: 'translate(0,0) scale(0.8)',
-                    opacity: 1
-                }, {
-                    transform: `translate(${dx}px,-140px) scale(1.2)`,
-                    opacity: 0
-                }], {
-                    duration: dur,
-                    easing: 'cubic-bezier(.2,.8,.3,1)'
-                });
-                setTimeout(() => fh.remove(), dur + 50);
-            }
-        });
+  /* ---------------- install to home screen ---------------- */
+  const installBtn = document.getElementById('installBtn');
+  const iosBackdrop = document.getElementById('iosBackdrop');
+  const iosOkBtn = document.getElementById('iosOkBtn');
+  let deferredPrompt = null;
 
-        /* ---------------- install to home screen ---------------- */
-        const installBtn = document.getElementById('installBtn');
-        const iosBackdrop = document.getElementById('iosBackdrop');
-        const iosOkBtn = document.getElementById('iosOkBtn');
-        let deferredPrompt = null;
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-        const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
+  async function triggerInstall(){
+    if (deferredPrompt){
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      return outcome === 'accepted';
+    } else if (isIos){
+      iosBackdrop.classList.add('show');
+      return false;
+    } else {
+      return false;
+    }
+  }
+  installBtn.addEventListener('click', triggerInstall);
+  iosOkBtn.addEventListener('click', () => iosBackdrop.classList.remove('show'));
+  window.addEventListener('appinstalled', () => { installBtn.textContent = '✓ Installed'; });
 
-        async function triggerInstall() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const {
-                    outcome
-                } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                return outcome === 'accepted';
-            } else if (isIos) {
-                iosBackdrop.classList.add('show');
-                return false;
-            } else {
-                return false;
-            }
-        }
-        installBtn.addEventListener('click', triggerInstall);
-        iosOkBtn.addEventListener('click', () => iosBackdrop.classList.remove('show'));
-        window.addEventListener('appinstalled', () => {
-            installBtn.textContent = '✓ Installed';
-        });
+  if ('serviceWorker' in navigator){
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+  }
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(() => {});
-            });
-        }
+  /* ---------------- SOS flow ---------------- */
+  const PHONE = '919773085739';
+  const sosBtn = document.getElementById('sosBtn');
+  const sosFab = document.getElementById('sosFab');
+  const nudgeBackdrop = document.getElementById('nudgeBackdrop');
+  const nudgeInstall = document.getElementById('nudgeInstall');
+  const nudgeSendAnyway = document.getElementById('nudgeSendAnyway');
+  const nudgeCancel = document.getElementById('nudgeCancel');
+  const statusEl = document.getElementById('status');
 
-        /* ---------------- SOS flow ---------------- */
-        const PHONE = '919773085739';
-        const sosBtn = document.getElementById('sosBtn');
-        const sosFab = document.getElementById('sosFab');
-        const statusEl = document.getElementById('status');
+  let hasSeenNudge = false;
 
-        // Direct-send: tapping either SOS button fires immediately, no confirmation step.
-        sosBtn.addEventListener('click', sendSOS);
-        sosFab.addEventListener('click', sendSOS);
+  // Direct-send: tapping SOS fires right away — the only extra step is the
+  // one-time "install first?" nudge (if not already installed), never a
+  // separate "are you sure" confirmation.
+  function handleSosTap(){
+    if (!isStandalone && !hasSeenNudge){
+      nudgeBackdrop.classList.add('show');
+    } else {
+      sendSOS();
+    }
+  }
+  sosBtn.addEventListener('click', handleSosTap);
+  sosFab.addEventListener('click', handleSosTap);
 
-        function openWhatsApp(text) {
-            window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(text)}`, '_blank');
-        }
+  nudgeInstall.addEventListener('click', async () => {
+    nudgeBackdrop.classList.remove('show');
+    hasSeenNudge = true;
+    await triggerInstall();
+  });
+  nudgeSendAnyway.addEventListener('click', () => {
+    nudgeBackdrop.classList.remove('show');
+    hasSeenNudge = true;
+    sendSOS();
+  });
+  nudgeCancel.addEventListener('click', () => nudgeBackdrop.classList.remove('show'));
 
-        // If the browser already knows a permission is blocked, fail immediately
-        // instead of waiting out the full timeout — keeps the UI from feeling stuck.
-        async function isBlocked(name) {
-            try {
-                if (!('permissions' in navigator)) return false;
-                const status = await navigator.permissions.query({
-                    name
-                });
-                return status.state === 'denied';
-            } catch (e) {
-                return false; // some browsers don't support this permission name — just proceed normally
-            }
-        }
+  function openWhatsApp(text){
+    window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+  }
 
-        function getPosition() {
-            return new Promise(async(resolve, reject) => {
-                if (!('geolocation' in navigator)) return reject(new Error('no geolocation support'));
-                if (await isBlocked('geolocation')) return reject(new Error('geolocation blocked'));
-                navigator.geolocation.getCurrentPosition(resolve, reject, {
-                    enableHighAccuracy: true,
-                    timeout: 6000
-                });
-            });
-        }
+  // If the browser already knows a permission is blocked, fail immediately
+  // instead of waiting out the full timeout — keeps the UI from feeling stuck.
+  async function isBlocked(name){
+    try{
+      if (!('permissions' in navigator)) return false;
+      const status = await navigator.permissions.query({ name });
+      return status.state === 'denied';
+    } catch(e){
+      return false; // some browsers don't support this permission name — just proceed normally
+    }
+  }
 
-        const camPreview = document.getElementById('camPreview');
-        const camVideo = document.getElementById('camVideo');
-        const camCanvas = document.getElementById('camCanvas');
-        const camFlash = document.getElementById('camFlash');
+  function getPosition(){
+    return new Promise(async (resolve, reject) => {
+      if (!('geolocation' in navigator)) return reject(new Error('no geolocation support'));
+      if (await isBlocked('geolocation')) return reject(new Error('geolocation blocked'));
+      navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy:true, timeout:6000 });
+    });
+  }
 
-        function captureSelfie() {
-            return new Promise(async(resolve, reject) => {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    return reject(new Error('no camera support'));
-                }
-                if (await isBlocked('camera')) return reject(new Error('camera blocked'));
-                let stream;
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({
-                        video: {
-                            facingMode: 'user'
-                        },
-                        audio: false
-                    });
-                } catch (e) {
-                    return reject(e);
-                }
+  const camPreview = document.getElementById('camPreview');
+  const camVideo = document.getElementById('camVideo');
+  const camCanvas = document.getElementById('camCanvas');
+  const camFlash = document.getElementById('camFlash');
 
-                camVideo.srcObject = stream;
-                camPreview.classList.add('show');
-                await camVideo.play().catch(() => {});
-                // brief live preview so it's never a hidden/covert capture, then snap
-                setTimeout(() => {
-                    const w = camVideo.videoWidth || 480,
-                        h = camVideo.videoHeight || 640;
-                    camCanvas.width = w;
-                    camCanvas.height = h;
-                    const ctx = camCanvas.getContext('2d');
-                    ctx.translate(w, 0);
-                    ctx.scale(-1, 1); // un-mirror for the saved photo
-                    ctx.drawImage(camVideo, 0, 0, w, h);
-                    camFlash.classList.add('go');
-                    camCanvas.toBlob((blob) => {
-                        stream.getTracks().forEach(t => t.stop());
-                        setTimeout(() => {
-                            camPreview.classList.remove('show');
-                            camFlash.classList.remove('go');
-                        }, 300);
-                        blob ? resolve(blob) : reject(new Error('capture failed'));
-                    }, 'image/jpeg', 0.85);
-                }, 1200);
-            });
-        }
+  function captureSelfie(){
+    return new Promise(async (resolve, reject) => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+        return reject(new Error('no camera support'));
+      }
+      if (await isBlocked('camera')) return reject(new Error('camera blocked'));
+      let stream;
+      try{
+        stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user' }, audio:false });
+      } catch(e){ return reject(e); }
 
-        function sendSOS() {
-            // 1) open WhatsApp immediately — this has to happen inside the click's
-            // user-gesture window, before any async camera/location delays.
-            openWhatsApp(`🚨 SOS from Amita! I need help right now.\n📍 grabbing my exact location + a quick photo — one sec, follow-up coming right here in the chat.`);
-            statusEl.textContent = 'WhatsApp opened. Getting your location + photo…';
-            captureFollowUp();
-        }
+      camVideo.srcObject = stream;
+      camPreview.classList.add('show');
+      await camVideo.play().catch(()=>{});
+      // brief live preview so it's never a hidden/covert capture, then snap
+      setTimeout(() => {
+        const w = camVideo.videoWidth || 480, h = camVideo.videoHeight || 640;
+        camCanvas.width = w; camCanvas.height = h;
+        const ctx = camCanvas.getContext('2d');
+        ctx.translate(w,0); ctx.scale(-1,1); // un-mirror for the saved photo
+        ctx.drawImage(camVideo, 0, 0, w, h);
+        camFlash.classList.add('go');
+        camCanvas.toBlob((blob) => {
+          stream.getTracks().forEach(t => t.stop());
+          setTimeout(() => { camPreview.classList.remove('show'); camFlash.classList.remove('go'); }, 300);
+          blob ? resolve(blob) : reject(new Error('capture failed'));
+        }, 'image/jpeg', 0.85);
+      }, 1200);
+    });
+  }
 
-        let lastPhotoBlob = null;
-        let lastLocationLink = null;
+  function sendSOS(){
+    // 1) open WhatsApp immediately — this has to happen inside the click's
+    // user-gesture window, before any async camera/location delays.
+    openWhatsApp(`🚨 SOS from Amita! I need help right now.\n📍 grabbing my exact location + a quick photo — one sec, follow-up coming right here in the chat.`);
+    statusEl.textContent = 'WhatsApp opened. Getting your location + photo…';
+    captureFollowUp();
+  }
 
-        function withTimeout(promise, ms, label) {
-            return Promise.race([
-                promise,
-                new Promise((_, reject) => setTimeout(() => reject(new Error((label || 'operation') + ' timed out')), ms))
-            ]);
-        }
+  let lastPhotoBlob = null;
+  let lastLocationLink = null;
 
-        async function captureFollowUp() {
-            // Each step is capped so a blocked or ignored permission prompt (location
-            // or camera) can never leave this stuck — after ~7s it just moves on with
-            // whatever it managed to get. A quick nudge shows up sooner so it never
-            // feels frozen while waiting on a permission prompt.
-            const nudge = setTimeout(() => {
-                statusEl.textContent = 'Still working — waiting on location/camera permission…';
-            }, 3000);
+  function withTimeout(promise, ms, label){
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error((label || 'operation') + ' timed out')), ms))
+    ]);
+  }
 
-            const [posResult, photoResult] = await Promise.allSettled([
-                withTimeout(getPosition(), 7000, 'location'),
-                withTimeout(captureSelfie(), 7000, 'camera')
-            ]);
-            clearTimeout(nudge);
+  async function captureFollowUp(){
+    // Each step is capped so a blocked or ignored permission prompt (location
+    // or camera) can never leave this stuck — after ~7s it just moves on with
+    // whatever it managed to get. A quick nudge shows up sooner so it never
+    // feels frozen while waiting on a permission prompt.
+    const nudge = setTimeout(() => {
+      statusEl.textContent = 'Still working — waiting on location/camera permission…';
+    }, 3000);
 
-            lastLocationLink = posResult.status === 'fulfilled' ?
-                `https://maps.google.com/?q=${posResult.value.coords.latitude},${posResult.value.coords.longitude}` :
-                null;
-            lastPhotoBlob = photoResult.status === 'fulfilled' ? photoResult.value : null;
-            camPreview.classList.remove('show'); // safety net in case a timeout fired mid-preview
+    const [posResult, photoResult] = await Promise.allSettled([
+      withTimeout(getPosition(), 7000, 'location'),
+      withTimeout(captureSelfie(), 7000, 'camera')
+    ]);
+    clearTimeout(nudge);
 
-            if (!lastLocationLink && !lastPhotoBlob) {
-                statusEl.textContent = 'Location & camera are blocked or unavailable — WhatsApp is already open, message him directly.';
-            } else {
-                statusEl.textContent = 'Location + photo ready below ↓';
-            }
-            showPhotoReady();
-        }
+    lastLocationLink = posResult.status === 'fulfilled'
+      ? `https://maps.google.com/?q=${posResult.value.coords.latitude},${posResult.value.coords.longitude}`
+      : null;
+    lastPhotoBlob = photoResult.status === 'fulfilled' ? photoResult.value : null;
+    camPreview.classList.remove('show'); // safety net in case a timeout fired mid-preview
 
-        const photoBackdrop = document.getElementById('photoBackdrop');
-        const photoThumb = document.getElementById('photoThumb');
-        const photoStatusText = document.getElementById('photoStatusText');
-        const shareBtn = document.getElementById('shareBtn');
-        const openWaAgainBtn = document.getElementById('openWaAgainBtn');
-        const downloadPhotoBtn = document.getElementById('downloadPhotoBtn');
-        const photoCloseBtn = document.getElementById('photoCloseBtn');
+    if (!lastLocationLink && !lastPhotoBlob){
+      statusEl.textContent = 'Location & camera are blocked or unavailable — WhatsApp is already open, message him directly.';
+    } else {
+      statusEl.textContent = 'Location + photo ready below ↓';
+    }
+    showPhotoReady();
+  }
 
-        function showPhotoReady() {
-            if (lastPhotoBlob) {
-                photoThumb.src = URL.createObjectURL(lastPhotoBlob);
-                photoThumb.style.display = 'block';
-            } else {
-                photoThumb.style.display = 'none';
-            }
-            if (lastLocationLink && lastPhotoBlob) {
-                photoStatusText.textContent = 'Photo + location ready. Tap share and pick WhatsApp to send both to him.';
-            } else if (lastLocationLink) {
-                photoStatusText.textContent = 'Photo unavailable, but your location is ready to share.';
-            } else if (lastPhotoBlob) {
-                photoStatusText.textContent = 'Location unavailable, but your photo is ready to share.';
-            } else {
-                photoStatusText.textContent = "Location and camera aren't available right now — WhatsApp is already open with your SOS message, so message him directly there.";
-            }
-            shareBtn.style.display = (navigator.canShare && lastPhotoBlob) ? 'block' : 'none';
-            openWaAgainBtn.style.display = lastLocationLink ? 'block' : 'none';
-            photoBackdrop.classList.add('show');
-        }
+  const photoBackdrop = document.getElementById('photoBackdrop');
+  const photoThumb = document.getElementById('photoThumb');
+  const photoStatusText = document.getElementById('photoStatusText');
+  const shareBtn = document.getElementById('shareBtn');
+  const openWaAgainBtn = document.getElementById('openWaAgainBtn');
+  const downloadPhotoBtn = document.getElementById('downloadPhotoBtn');
+  const photoCloseBtn = document.getElementById('photoCloseBtn');
 
-        shareBtn.addEventListener('click', async() => {
-            try {
-                const file = new File([lastPhotoBlob], 'sos-photo.jpg', {
-                    type: 'image/jpeg'
-                });
-                const shareData = {
-                    files: [file],
-                    text: lastLocationLink ? `🚨 SOS — my location: ${lastLocationLink}` : '🚨 SOS photo'
-                };
-                if (navigator.canShare && navigator.canShare(shareData)) {
-                    await navigator.share(shareData);
-                } else {
-                    throw new Error('share not supported');
-                }
-            } catch (e) {
-                photoStatusText.textContent = "Couldn't open the share sheet — try 'Download photo' and attach it manually.";
-            }
-        });
+  function showPhotoReady(){
+    if (lastPhotoBlob){
+      photoThumb.src = URL.createObjectURL(lastPhotoBlob);
+      photoThumb.style.display = 'block';
+    } else {
+      photoThumb.style.display = 'none';
+    }
+    if (lastLocationLink && lastPhotoBlob){
+      photoStatusText.textContent = 'Photo + location ready. Tap share and pick WhatsApp to send both to him.';
+    } else if (lastLocationLink){
+      photoStatusText.textContent = 'Photo unavailable, but your location is ready to share.';
+    } else if (lastPhotoBlob){
+      photoStatusText.textContent = 'Location unavailable, but your photo is ready to share.';
+    } else {
+      photoStatusText.textContent = "Location and camera aren't available right now — WhatsApp is already open with your SOS message, so message him directly there.";
+    }
+    shareBtn.style.display = (navigator.canShare && lastPhotoBlob) ? 'block' : 'none';
+    openWaAgainBtn.style.display = lastLocationLink ? 'block' : 'none';
+    photoBackdrop.classList.add('show');
+  }
 
-        openWaAgainBtn.addEventListener('click', () => {
-            const msg = lastLocationLink ? `📍 My location: ${lastLocationLink}` : `📍 Location unavailable`;
-            openWhatsApp(msg);
-        });
+  shareBtn.addEventListener('click', async () => {
+    try{
+      const file = new File([lastPhotoBlob], 'sos-photo.jpg', { type:'image/jpeg' });
+      const shareData = {
+        files:[file],
+        text: lastLocationLink ? `🚨 SOS — my location: ${lastLocationLink}` : '🚨 SOS photo'
+      };
+      if (navigator.canShare && navigator.canShare(shareData)){
+        await navigator.share(shareData);
+      } else {
+        throw new Error('share not supported');
+      }
+    } catch(e){
+      photoStatusText.textContent = "Couldn't open the share sheet — try 'Download photo' and attach it manually.";
+    }
+  });
 
-        downloadPhotoBtn.addEventListener('click', () => {
-            if (!lastPhotoBlob) return;
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(lastPhotoBlob);
-            a.download = 'sos-photo.jpg';
-            a.click();
-        });
+  openWaAgainBtn.addEventListener('click', () => {
+    const msg = lastLocationLink ? `📍 My location: ${lastLocationLink}` : `📍 Location unavailable`;
+    openWhatsApp(msg);
+  });
 
-        photoCloseBtn.addEventListener('click', () => photoBackdrop.classList.remove('show'));
-    </script>
+  downloadPhotoBtn.addEventListener('click', () => {
+    if (!lastPhotoBlob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(lastPhotoBlob);
+    a.download = 'sos-photo.jpg';
+    a.click();
+  });
+
+  photoCloseBtn.addEventListener('click', () => photoBackdrop.classList.remove('show'));
+</script>
 </body>
-
 </html>
