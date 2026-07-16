@@ -163,6 +163,25 @@
   }
   .card h2{ margin:0 0 4px; font-size:17px; }
   .card p{ margin:0 0 14px; font-size:13px; color:var(--muted); line-height:1.55; }
+  .card-sos{
+    border:1px solid rgba(255,59,92,0.4);
+    background:linear-gradient(180deg, rgba(255,59,92,0.14), var(--card));
+    box-shadow:0 10px 34px rgba(255,59,92,0.15);
+    margin-top:4px;
+  }
+
+  #sosFab{
+    position:fixed; z-index:45; right:16px; bottom:calc(20px + env(safe-area-inset-bottom));
+    width:58px; height:58px; border-radius:50%; border:none; cursor:pointer;
+    background:linear-gradient(135deg,var(--sos),#ff6b6b); color:#fff; font-size:22px;
+    box-shadow:0 10px 28px rgba(255,59,92,0.45);
+    display:flex; align-items:center; justify-content:center;
+    animation: fabpulse 2s ease-in-out infinite;
+  }
+  @keyframes fabpulse{
+    0%,100%{ box-shadow:0 10px 28px rgba(255,59,92,0.45); }
+    50%{ box-shadow:0 10px 28px rgba(255,59,92,0.45), 0 0 0 10px rgba(255,59,92,0.12); }
+  }
 
   button.action{
     appearance:none; border:none; cursor:pointer; width:100%;
@@ -203,6 +222,24 @@
   .btn-primary{ background:linear-gradient(90deg,var(--purple),var(--cyan)); color:#0b0014; }
   .btn-sos{ background:linear-gradient(90deg,var(--sos),#ff6b6b); color:#fff; }
   .btn-ghost{ background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.15) !important; }
+
+  /* ---------- camera capture ---------- */
+  #camPreview{
+    position:fixed; z-index:70; bottom:18px; left:50%; transform:translateX(-50%);
+    width:120px; height:160px; border-radius:16px; overflow:hidden;
+    border:2px solid var(--pink); box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  #camPreview.show{ opacity:1; }
+  #camPreview video{ width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+  #camPreview .flash{
+    position:absolute; inset:0; background:#fff; opacity:0;
+  }
+  #camPreview .flash.go{ animation:flash .25s ease; }
+  @keyframes flash{ 0%{opacity:0;} 30%{opacity:0.9;} 100%{opacity:0;} }
+
+  .photo-preview{ width:100%; border-radius:16px; margin-bottom:16px; display:block; }
+  .modal-note{ font-size:11.5px; color:var(--muted); margin:-8px 0 16px; }
 </style>
 </head>
 <body>
@@ -228,6 +265,16 @@
 </header>
 
 <main>
+  <div class="card card-sos">
+    <h2>🆘 SOS button</h2>
+    <p>if you're ever unsafe or just need me — one tap opens WhatsApp to me, grabs your live location, and snaps a quick photo so I know exactly where you are and that you're okay.</p>
+    <button id="sosBtn" class="action">
+      <span class="pulse-dot"></span>
+      Send SOS
+    </button>
+    <div class="status" id="status"></div>
+  </div>
+
   <p class="eyebrow">certified main character</p>
   <h1 class="name">AMITA</h1>
   <p class="tagline">this whole page runs on one thing: how much you're loved 💫</p>
@@ -255,39 +302,18 @@
     </button>
   </div>
 
-  <div class="card">
-    <h2>🆘 SOS button</h2>
-    <p>if you're ever unsafe or just need me — one tap sends your live location + an SOS straight to my WhatsApp. instantly.</p>
-    <button id="sosBtn" class="action">
-      <span class="pulse-dot"></span>
-      Send SOS
-    </button>
-    <div class="status" id="status"></div>
-  </div>
-
   <footer>made with 💗 (and way too much css) — always yours</footer>
 </main>
 
-<!-- install-first nudge modal -->
-<div class="modal-backdrop" id="nudgeBackdrop">
-  <div class="modal">
-    <div class="em">📲</div>
-    <h3>Quick thing first?</h3>
-    <p>Adding this to your home screen means the SOS button is always right there — even faster next time. Totally your call though.</p>
-    <div class="modal-row">
-      <button class="btn-primary" id="nudgeInstall">Install app first</button>
-      <button class="btn-sos" id="nudgeSendAnyway">Just send SOS now</button>
-      <button class="btn-ghost" id="nudgeCancel">Never mind</button>
-    </div>
-  </div>
-</div>
+<!-- always-on-screen quick SOS, works even while scrolled down -->
+<button id="sosFab" aria-label="Send SOS">🆘</button>
 
 <!-- confirm send modal -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal">
     <div class="em">🚨</div>
     <h3>Send SOS now?</h3>
-    <p>This opens WhatsApp with your message and live location, ready to go. Nothing sends until you hit send in WhatsApp.</p>
+    <p>This opens WhatsApp with your message right away, then location + a quick photo follow shortly after.</p>
     <div class="modal-row">
       <button class="btn-sos" id="confirmBtn">Yes, send it</button>
       <button class="btn-ghost" id="cancelBtn">Cancel</button>
@@ -302,6 +328,31 @@
     <h3>Add to Home Screen</h3>
     <p>Tap the Share icon <b>⬆️</b> in Safari's toolbar, then choose <b>“Add to Home Screen.”</b> Your app icon shows up right on your home screen.</p>
     <div class="modal-row"><button class="btn-primary" id="iosOkBtn">Got it</button></div>
+  </div>
+</div>
+
+
+
+<!-- live front-camera preview during selfie capture -->
+<div id="camPreview">
+  <video id="camVideo" autoplay muted playsinline></video>
+  <div class="flash" id="camFlash"></div>
+</div>
+<canvas id="camCanvas" style="display:none;"></canvas>
+
+<!-- photo + location ready to share -->
+<div class="modal-backdrop" id="photoBackdrop">
+  <div class="modal">
+    <div class="em">📍</div>
+    <h3>Ready to share</h3>
+    <img id="photoThumb" class="photo-preview" style="display:none;" alt="captured selfie" />
+    <p class="modal-note" id="photoStatusText">Your location is attached below. Tap share and pick WhatsApp — the chat with him should already be open or recent.</p>
+    <div class="modal-row">
+      <button class="btn-sos" id="shareBtn">📤 Share photo + location</button>
+      <button class="btn-primary" id="openWaAgainBtn">Open WhatsApp with location</button>
+      <button class="btn-ghost" id="downloadPhotoBtn">Download photo</button>
+      <button class="btn-ghost" id="photoCloseBtn">Close</button>
+    </div>
   </div>
 </div>
 
@@ -411,63 +462,152 @@
   /* ---------------- SOS flow ---------------- */
   const PHONE = '919773085739';
   const sosBtn = document.getElementById('sosBtn');
-  const nudgeBackdrop = document.getElementById('nudgeBackdrop');
-  const nudgeInstall = document.getElementById('nudgeInstall');
-  const nudgeSendAnyway = document.getElementById('nudgeSendAnyway');
-  const nudgeCancel = document.getElementById('nudgeCancel');
+  const sosFab = document.getElementById('sosFab');
   const modalBackdrop = document.getElementById('modalBackdrop');
   const confirmBtn = document.getElementById('confirmBtn');
   const cancelBtn = document.getElementById('cancelBtn');
   const statusEl = document.getElementById('status');
 
-  let hasSeenNudge = false;
-
-  sosBtn.addEventListener('click', () => {
-    if (!isStandalone && !hasSeenNudge){
-      nudgeBackdrop.classList.add('show');
-    } else {
-      modalBackdrop.classList.add('show');
-    }
-  });
-
-  nudgeInstall.addEventListener('click', async () => {
-    nudgeBackdrop.classList.remove('show');
-    hasSeenNudge = true;
-    await triggerInstall();
-  });
-  nudgeSendAnyway.addEventListener('click', () => {
-    nudgeBackdrop.classList.remove('show');
-    hasSeenNudge = true;
-    modalBackdrop.classList.add('show');
-  });
-  nudgeCancel.addEventListener('click', () => nudgeBackdrop.classList.remove('show'));
+  function openConfirm(){ modalBackdrop.classList.add('show'); }
+  sosBtn.addEventListener('click', openConfirm);
+  sosFab.addEventListener('click', openConfirm);
 
   cancelBtn.addEventListener('click', () => modalBackdrop.classList.remove('show'));
   confirmBtn.addEventListener('click', () => { modalBackdrop.classList.remove('show'); sendSOS(); });
 
-  function openWhatsApp(locationText){
-    const baseMsg = `🚨 SOS from Amita! I need help right now.`;
-    const msg = locationText ? `${baseMsg}\nMy location: ${locationText}` : `${baseMsg}\n(Location unavailable)`;
-    window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
+  function openWhatsApp(text){
+    window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+  }
+
+  function getPosition(){
+    return new Promise((resolve, reject) => {
+      if (!('geolocation' in navigator)) return reject();
+      navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy:true, timeout:6000 });
+    });
+  }
+
+  const camPreview = document.getElementById('camPreview');
+  const camVideo = document.getElementById('camVideo');
+  const camCanvas = document.getElementById('camCanvas');
+  const camFlash = document.getElementById('camFlash');
+
+  function captureSelfie(){
+    return new Promise(async (resolve, reject) => {
+      let stream;
+      try{
+        stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user' }, audio:false });
+      } catch(e){ return reject(e); }
+
+      camVideo.srcObject = stream;
+      camPreview.classList.add('show');
+      await camVideo.play().catch(()=>{});
+      // brief live preview so it's never a hidden/covert capture, then snap
+      setTimeout(() => {
+        const w = camVideo.videoWidth || 480, h = camVideo.videoHeight || 640;
+        camCanvas.width = w; camCanvas.height = h;
+        const ctx = camCanvas.getContext('2d');
+        ctx.translate(w,0); ctx.scale(-1,1); // un-mirror for the saved photo
+        ctx.drawImage(camVideo, 0, 0, w, h);
+        camFlash.classList.add('go');
+        camCanvas.toBlob((blob) => {
+          stream.getTracks().forEach(t => t.stop());
+          setTimeout(() => { camPreview.classList.remove('show'); camFlash.classList.remove('go'); }, 300);
+          blob ? resolve(blob) : reject(new Error('capture failed'));
+        }, 'image/jpeg', 0.85);
+      }, 1200);
+    });
   }
 
   function sendSOS(){
-    statusEl.textContent = 'Getting your location…';
-    if (!('geolocation' in navigator)){
-      statusEl.textContent = 'Opening WhatsApp…';
-      openWhatsApp(null);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const link = `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
-        statusEl.textContent = 'Opening WhatsApp…';
-        openWhatsApp(link);
-      },
-      () => { statusEl.textContent = 'Opening WhatsApp…'; openWhatsApp(null); },
-      { enableHighAccuracy: true, timeout: 6000 }
-    );
+    // 1) open WhatsApp immediately — this has to happen inside the click's
+    // user-gesture window, before any async camera/location delays.
+    openWhatsApp(`🚨 SOS from Amita! I need help right now.\n📍 grabbing my exact location + a quick photo — one sec, follow-up coming right here in the chat.`);
+    statusEl.textContent = 'WhatsApp opened. Getting your location + photo…';
+    captureFollowUp();
   }
+
+  let lastPhotoBlob = null;
+  let lastLocationLink = null;
+
+  function withTimeout(promise, ms, label){
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error((label||'operation') + ' timed out')), ms))
+    ]);
+  }
+
+  async function captureFollowUp(){
+    // Each step is capped so a blocked or ignored permission prompt (location
+    // or camera) can never leave this stuck — after ~9s it just moves on with
+    // whatever it managed to get.
+    const [posResult, photoResult] = await Promise.allSettled([
+      withTimeout(getPosition(), 9000, 'location'),
+      withTimeout(captureSelfie(), 9000, 'camera')
+    ]);
+
+    lastLocationLink = posResult.status === 'fulfilled'
+      ? `https://maps.google.com/?q=${posResult.value.coords.latitude},${posResult.value.coords.longitude}`
+      : null;
+    lastPhotoBlob = photoResult.status === 'fulfilled' ? photoResult.value : null;
+    camPreview.classList.remove('show'); // safety net in case a timeout fired mid-preview
+
+    statusEl.textContent = 'Location + photo ready below ↓';
+    showPhotoReady();
+  }
+
+  const photoBackdrop = document.getElementById('photoBackdrop');
+  const photoThumb = document.getElementById('photoThumb');
+  const photoStatusText = document.getElementById('photoStatusText');
+  const shareBtn = document.getElementById('shareBtn');
+  const openWaAgainBtn = document.getElementById('openWaAgainBtn');
+  const downloadPhotoBtn = document.getElementById('downloadPhotoBtn');
+  const photoCloseBtn = document.getElementById('photoCloseBtn');
+
+  function showPhotoReady(){
+    if (lastPhotoBlob){
+      photoThumb.src = URL.createObjectURL(lastPhotoBlob);
+      photoThumb.style.display = 'block';
+    } else {
+      photoThumb.style.display = 'none';
+    }
+    photoStatusText.textContent = lastLocationLink
+      ? (lastPhotoBlob ? 'Photo + location ready. Tap share and pick WhatsApp to send both to him.' : 'Photo unavailable, but your location is ready to share.')
+      : 'Location unavailable, but your photo is ready to share.';
+    shareBtn.style.display = (navigator.canShare && lastPhotoBlob) ? 'block' : 'none';
+    photoBackdrop.classList.add('show');
+  }
+
+  shareBtn.addEventListener('click', async () => {
+    try{
+      const file = new File([lastPhotoBlob], 'sos-photo.jpg', { type:'image/jpeg' });
+      const shareData = {
+        files:[file],
+        text: lastLocationLink ? `🚨 SOS — my location: ${lastLocationLink}` : '🚨 SOS photo'
+      };
+      if (navigator.canShare && navigator.canShare(shareData)){
+        await navigator.share(shareData);
+      } else {
+        throw new Error('share not supported');
+      }
+    } catch(e){
+      photoStatusText.textContent = "Couldn't open the share sheet — try 'Download photo' and attach it manually.";
+    }
+  });
+
+  openWaAgainBtn.addEventListener('click', () => {
+    const msg = lastLocationLink ? `📍 My location: ${lastLocationLink}` : `📍 Location unavailable`;
+    openWhatsApp(msg);
+  });
+
+  downloadPhotoBtn.addEventListener('click', () => {
+    if (!lastPhotoBlob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(lastPhotoBlob);
+    a.download = 'sos-photo.jpg';
+    a.click();
+  });
+
+  photoCloseBtn.addEventListener('click', () => photoBackdrop.classList.remove('show'));
 </script>
 </body>
 </html>
