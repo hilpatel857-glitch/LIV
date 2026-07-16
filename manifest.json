@@ -1,0 +1,25 @@
+{
+  "name": "amita.exe 💗",
+  "short_name": "Amita SOS",
+  "description": "Her corner of the internet — with a one-tap SOS button.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0014",
+  "theme_color": "#7b2ff7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
